@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stockhogar</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="modo-claro">
+
+    <!-- PANTALLA 1: LOGIN Y REGISTRO -->
+    <div id="pantalla-auth" class="pantalla activa">
+        <div class="auth-box">
+            <h1>STOCKHOGAR</h1>
+            <p>INVENTARIO INTELIGENTE</p>
+            <div id="form-login">
+                <input type="email" id="login-correo" placeholder="✉️ Correo electrónico">
+                <input type="password" id="login-pass" placeholder="🔒 Contraseña">
+                <button class="btn-primario" onclick="iniciarSesion()">Iniciar Sesión</button>
+                <p class="link" onclick="toggleAuth()">¿No tenés cuenta? Regístrate</p>
+            </div>
+            <div id="form-registro" style="display: none;">
+                <input type="text" id="reg-nombre" placeholder="👤 Nombre completo">
+                <input type="email" id="reg-correo" placeholder="✉️ Correo electrónico">
+                <input type="password" id="reg-pass" placeholder="🔒 Contraseña">
+                <input type="password" id="reg-pass2" placeholder="🔒 Repetir Contraseña">
+                <button class="btn-primario" onclick="registrarUsuario()">Registrarme</button>
+                <p class="link" onclick="toggleAuth()">¿Ya tenés cuenta? Inicia Sesión</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 2: HOME -->
+    <div id="pantalla-home" class="pantalla fondo-verde">
+        <header>
+            <!-- ELIMINAMOS LAS 3 RAYITAS Y CENTRAMOS EL TÍTULO -->
+            <div style="flex: 1; text-align: left;"></div>
+            <div style="text-align: center;">
+                <h2>STOCKHOGAR</h2>
+                <p>INVENTARIO INTELIGENTE</p>
+            </div>
+            <!-- CAMPANA CLICKEABLE -->
+            <div class="campana" style="flex: 1; text-align: right;" onclick="irA('pantalla-inventario')">
+                <i class="fas fa-bell"></i>
+                <span id="badge-alertas" class="badge">0</span>
+            </div>
+        </header>
+
+        <div class="saludo">
+            <h3 id="saludo-usuario">¡Hola!</h3>
+            <p>¿Qué te gustaría hacer hoy?</p>
+        </div>
+
+        <div class="tarjeta-escanear" onclick="abrirEscaner()">
+            <div class="icono-escaner"><i class="fas fa-barcode"></i></div>
+            <h3>ESCANEAR CÓDIGO DE BARRAS</h3>
+            <p>Escaneá el código para agregar un producto</p>
+        </div>
+
+        <div class="panel-blanco">
+            <h4>Resumen de tu inventario</h4>
+            <div class="resumen-grid">
+                <div class="resumen-item" onclick="irA('pantalla-inventario')" style="cursor: pointer;">
+                    <div class="icono-verde"><i class="fas fa-box"></i></div>
+                    <span>Productos</span>
+                    <strong id="total-productos">0</strong>
+                    <small>registrados</small>
+                </div>
+                <div class="resumen-item" onclick="irA('pantalla-inventario')" style="cursor: pointer;">
+                    <div class="icono-naranja"><i class="fas fa-exclamation-triangle"></i></div>
+                    <span>Por vencer</span>
+                    <strong id="total-por-vencer" style="color: #ff9800;">0</strong>
+                    <small>productos</small>
+                </div>
+                <div class="resumen-item" onclick="irA('pantalla-categorias')" style="cursor: pointer;">
+                    <div class="icono-azul"><i class="fas fa-clipboard-list"></i></div>
+                    <span>Categorías</span>
+                    <strong style="color: #2196f3;">7</strong>
+                    <small>categorías</small>
+                </div>
+            </div>
+
+            <h4 style="margin-top: 20px;">Acciones rápidas</h4>
+            <div class="acciones-grid">
+                <div class="accion-item" onclick="irA('pantalla-agregar')">
+                    <i class="fas fa-plus-circle" style="color: #4caf50;"></i> Agregar
+                </div>
+                <div class="accion-item" onclick="irA('pantalla-inventario')">
+                    <i class="fas fa-list" style="color: #ff9800;"></i> Ver Inventario
+                </div>
+                <div class="accion-item" onclick="irA('pantalla-inventario')">
+                    <i class="fas fa-calendar-alt" style="color: #2196f3;"></i> Próximos
+                </div>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <div class="nav-item activo" onclick="irA('pantalla-home')"><i class="fas fa-home"></i> Inicio</div>
+            <div class="nav-item" onclick="irA('pantalla-inventario')"><i class="fas fa-box"></i> Inventario</div>
+            <div class="nav-item" onclick="irA('pantalla-categorias')"><i class="fas fa-th-large"></i> Categorías</div>
+            <div class="nav-item" onclick="irA('pantalla-ajustes')"><i class="fas fa-cog"></i> Ajustes</div>
+        </nav>
+    </div>
+
+    <!-- PANTALLA 3: AGREGAR PRODUCTO -->
+    <div id="pantalla-agregar" class="pantalla fondo-gris">
+        <header class="header-simple">
+            <i class="fas fa-arrow-left" onclick="irA('pantalla-home')"></i>
+            <h2>Agregar Producto</h2>
+        </header>
+        <div class="panel-blanco" style="margin: 20px; border-radius: 15px;">
+            <button class="btn-primario" onclick="encenderCamara('prod-codigo', 'lector-agregar')" style="margin-bottom: 15px;">
+                <i class="fas fa-camera"></i> Escanear Código
+            </button>
+            <div id="lector-agregar" style="width: 100%;"></div>
+            
+            <input type="text" id="prod-codigo" placeholder="Código de barras">
+            <input type="text" id="prod-nombre" placeholder="Nombre (Ej: Arroz)">
+            
+            <label style="font-size: 12px; color: #666; margin-left: 5px;">Categoría:</label>
+            <select id="prod-categoria" style="width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px;">
+                <option value="Sin categoría">No sé / Sin categoría</option>
+                <option value="Lácteos y Huevos">Lácteos y Huevos</option>
+                <option value="Carnes y Fiambres">Carnes y Fiambres</option>
+                <option value="Frutas y Verduras">Frutas y Verduras</option>
+                <option value="Almacén (Secos)">Almacén (Secos)</option>
+                <option value="Conservas">Conservas</option>
+                <option value="Bebidas">Bebidas</option>
+                <option value="Congelados">Congelados</option>
+            </select>
+
+            <label style="font-size: 12px; color: #666; margin-left: 5px;">Vencimiento:</label>
+            <input type="date" id="prod-fecha">
+            <input type="number" id="prod-cantidad" placeholder="Cantidad" value="1">
+            
+            <button class="btn-exito" onclick="agregarProducto()">💾 Guardar Producto</button>
+        </div>
+    </div>
+
+    <!-- PANTALLA 4: INVENTARIO -->
+    <div id="pantalla-inventario" class="pantalla fondo-gris">
+        <header class="header-simple">
+            <i class="fas fa-arrow-left" onclick="irA('pantalla-home')"></i>
+            <h2>Mi Inventario</h2>
+        </header>
+        <div class="panel-blanco" style="margin: 20px;">
+            <ul id="lista-productos" style="padding: 0; margin: 0; list-style: none;"></ul>
+        </div>
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="irA('pantalla-home')"><i class="fas fa-home"></i> Inicio</div>
+            <div class="nav-item activo"><i class="fas fa-box"></i> Inventario</div>
+            <div class="nav-item" onclick="irA('pantalla-categorias')"><i class="fas fa-th-large"></i> Categorías</div>
+            <div class="nav-item" onclick="irA('pantalla-ajustes')"><i class="fas fa-cog"></i> Ajustes</div>
+        </nav>
+    </div>
+
+    <!-- PANTALLA 5: CATEGORÍAS -->
+    <div id="pantalla-categorias" class="pantalla fondo-gris">
+        <header class="header-simple">
+            <i class="fas fa-arrow-left" onclick="irA('pantalla-home')"></i>
+            <h2>Categorías</h2>
+        </header>
+        <div class="panel-blanco" style="margin: 20px; border-radius: 15px;">
+            <ul id="lista-categorias" style="padding: 0; margin: 0; list-style: none;"></ul>
+        </div>
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="irA('pantalla-home')"><i class="fas fa-home"></i> Inicio</div>
+            <div class="nav-item" onclick="irA('pantalla-inventario')"><i class="fas fa-box"></i> Inventario</div>
+            <div class="nav-item activo"><i class="fas fa-th-large"></i> Categorías</div>
+            <div class="nav-item" onclick="irA('pantalla-ajustes')"><i class="fas fa-cog"></i> Ajustes</div>
+        </nav>
+    </div>
+
+    <!-- PANTALLA 6: AJUSTES -->
+    <div id="pantalla-ajustes" class="pantalla fondo-gris">
+        <header class="header-simple">
+            <i class="fas fa-arrow-left" onclick="irA('pantalla-home')"></i>
+            <h2>Ajustes</h2>
+        </header>
+        <div class="panel-blanco" style="margin: 20px; border-radius: 15px; padding: 20px;">
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <i class="fas fa-user-circle" style="font-size: 50px; color: #0a5c26;"></i>
+                <h3 id="nombre-ajustes" style="margin-top: 10px; color: #0a5c26;">Usuario</h3>
+            </div>
+
+            <!-- MODO OSCURO -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee;">
+                <span style="font-weight: 600;">🌙 Modo Oscuro</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-modo-oscuro" onchange="cambiarModoOscuro()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- NOTIFICACIONES -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee;">
+                <span style="font-weight: 600;">🔔 Alertas de vencimiento</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-notificaciones" checked onchange="guardarPreferenciaNotificaciones()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <button onclick="borrarTodo()" style="width: 100%; margin-top: 20px; padding: 15px; background: #ffebee; color: #d32f2f; border: 1px solid #ffcdd2; border-radius: 10px; font-weight: bold; cursor: pointer;">
+                <i class="fas fa-trash"></i> Borrar Inventario
+            </button>
+
+            <button onclick="cerrarSesion()" style="width: 100%; margin-top: 10px; padding: 15px; background: white; color: #0a5c26; border: 1px solid #0a5c26; border-radius: 10px; font-weight: bold; cursor: pointer;">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+            
+            <p style="text-align: center; color: #999; font-size: 12px; margin-top: 30px;">Stockhogar v1.0</p>
+        </div>
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="irA('pantalla-home')"><i class="fas fa-home"></i> Inicio</div>
+            <div class="nav-item" onclick="irA('pantalla-inventario')"><i class="fas fa-box"></i> Inventario</div>
+            <div class="nav-item" onclick="irA('pantalla-categorias')"><i class="fas fa-th-large"></i> Categorías</div>
+            <div class="nav-item activo"><i class="fas fa-cog"></i> Ajustes</div>
+        </nav>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="app.js"></script>
+</body>
+</html>
