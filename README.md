@@ -1,0 +1,2 @@
+# StockHogar-InventarioInteligente
+Inventario Inteligente
